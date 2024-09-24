@@ -68,10 +68,10 @@ import retrofit2.Response
 @Composable
 fun TelaCadastro1(
     controleDeNavegacao: NavHostController? = null,
-    backStackEntry: NavBackStackEntry // Adicione o parâmetro para capturar os argumentos de navegação
+    backStackEntry: NavBackStackEntry? = null // Adicione o parâmetro para capturar os argumentos de navegação
 ) {
     // Obtenha o parâmetro "tipoUsuario" da backStackEntry
-    val tipoUsuario = backStackEntry.arguments?.getString("tipoUsuario")
+    val tipoUsuario = backStackEntry?.arguments?.getString("tipoUsuario")
 
     // Variáveis de estado
     val aluno = remember { mutableStateOf(false) }
@@ -165,6 +165,11 @@ fun TelaCadastro1(
     var ano by remember { mutableStateOf(TextFieldValue("")) }
 
     var expandedMonth by remember { mutableStateOf(false) }
+
+    var erroCadastroInfo by remember { mutableStateOf(false) }
+    var mensagemErro by remember { mutableStateOf("") }
+
+
 
     Column(
         modifier = Modifier
@@ -344,17 +349,37 @@ fun TelaCadastro1(
 
                 // Botão "Próx. passo"
                 Spacer(modifier = Modifier.height(20.dp))
-                Button(
-                    onClick = { etapa2.value = true },
-                    colors = ButtonDefaults.buttonColors(Color(0xFFFEE101)),
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text(text = "Prox. passo", color = Color.Black, letterSpacing = 1.sp)
-                    Icon(
-                        imageVector = Icons.Filled.ArrowForward,
-                        contentDescription = "",
-                        tint = Color.Black
-                    )
+                Column {
+
+                    if(erroCadastroInfo){
+                        Text(
+                            text = mensagemErro,
+                            color = Color.Red,
+                            fontSize = (12.sp)
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            if(nome.value.isEmpty() || email.value.isEmpty() ||
+                                senha.value.isEmpty() || telefone.value.isEmpty()) {
+                                erroCadastroInfo = true
+                                mensagemErro = "O campo não pode estar vazio."
+                            } else if (nome.value > 90.toString() || email.value > 255.toString() || senha.value > 25.toString() || telefone.value > 15.toString()) {
+                                erroCadastroInfo = true
+                            } else {
+                                erroCadastroInfo = false
+                            }
+                            etapa2.value = true },
+                        colors = ButtonDefaults.buttonColors(Color(0xFFFEE101)),
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text(text = "Prox. passo", color = Color.Black, letterSpacing = 1.sp)
+                        Icon(
+                            imageVector = Icons.Filled.ArrowForward,
+                            contentDescription = "",
+                            tint = Color.Black
+                        )
+                    }
                 }
             }
         } else if (!etapa3.value) {
@@ -658,8 +683,8 @@ fun TelaCadastro1(
     }
 
 
-//@Preview(showBackground = true, showSystemUi = true)
-//@Composable
-//fun TelaCadastro1Preview() {
-//    TelaCadastro1(controleDeNavegacao, backStackEntry)
-//}
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun TelaCadastro1Preview() {
+    TelaCadastro1(controleDeNavegacao = null, backStackEntry = null)
+}
