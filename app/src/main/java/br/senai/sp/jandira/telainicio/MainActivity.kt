@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
             TelaInicioTheme {
                 //Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                 // cadastroCat()
+                //teste
                 val controleDeNavegacao = rememberNavController()
 
                 NavHost(navController = controleDeNavegacao, startDestination = "inicio"){
