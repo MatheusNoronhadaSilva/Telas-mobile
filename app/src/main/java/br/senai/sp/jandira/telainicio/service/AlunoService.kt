@@ -1,6 +1,8 @@
 package br.senai.sp.jandira.telainicio.service
 
 import br.senai.sp.jandira.telainicio.model.Aluno
+import br.senai.sp.jandira.telainicio.model.Login
+import br.senai.sp.jandira.telainicio.model.LoginResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -17,6 +19,10 @@ interface AlunoService {
     // Obter um aluno pelo ID (GET)
     @GET("alunos/{id}")
     fun getAlunoById(@Path("id") id: Int): Call<Aluno>  // Retorna um único Aluno pelo ID
+
+    @Headers("Content-Type: application/json")
+    @POST("login")
+    fun getAlunoByEmailSenha(@Body EmailSenha: Login): Call<LoginResponse>
 
     // Enviar um novo aluno (POST)
     @Headers("Content-Type: application/json")

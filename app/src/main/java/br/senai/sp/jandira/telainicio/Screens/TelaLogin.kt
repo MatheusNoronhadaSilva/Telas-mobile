@@ -28,6 +28,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,11 +42,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
+import br.senai.sp.jandira.rickandmorty.service.RetrofitFactory
 import br.senai.sp.jandira.telainicio.R
+import br.senai.sp.jandira.telainicio.model.Login
+import br.senai.sp.jandira.telainicio.model.LoginResponse
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaLogin(controleDeNavegacao: NavHostController?= null) {
+
+
+
+    var UsuarioEmail = remember { mutableStateOf("") }
+    var UsuarioSenha = remember { mutableStateOf("") }
+
+    //Usuario do Banco
+    var UsuarioEmailValida = remember { mutableStateOf("") }
+    var UsuarioSenhaValida = remember { mutableStateOf("") }
+
+    var messageErrorState by remember { mutableStateOf("") }
+    var messageSuccessState by remember { mutableStateOf("") }
+    var isErrorState by remember { mutableStateOf(false) }
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -116,8 +141,10 @@ fun TelaLogin(controleDeNavegacao: NavHostController?= null) {
                             )
                         }
                     },
-                    value = "",
-                    onValueChange = {},
+                    value = UsuarioEmail.value,
+                    onValueChange = {
+                        UsuarioEmail.value = it
+                    },
                     modifier = Modifier
                         .padding(top = 30.dp)
                         .width(350.dp),
@@ -148,8 +175,10 @@ fun TelaLogin(controleDeNavegacao: NavHostController?= null) {
                             )
                         }
                     },
-                    value = "",
-                    onValueChange = {},
+                    value = UsuarioSenha.value,
+                    onValueChange = {
+                        UsuarioSenha.value = it
+                    },
                     modifier = Modifier
                         .padding(top = 20.dp)
                         .width(350.dp),
@@ -196,8 +225,42 @@ fun TelaLogin(controleDeNavegacao: NavHostController?= null) {
                     .height(180.dp)
                     .fillMaxWidth()
             ) {
+
                 Button(
-                    onClick = { /* Ação do botão */ },
+                    onClick = {
+
+                        val usuarioLogin = Login(
+                            email = UsuarioEmail.value,
+                            senha = UsuarioSenha.value,
+                        )
+
+                        println(usuarioLogin)
+
+                        val call = RetrofitFactory().getAlunoService().getAlunoByEmailSenha(usuarioLogin)
+
+                        call.enqueue(object : Callback<LoginResponse>{
+                            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                                if (response.isSuccessful) {
+                                    val usuarioLogado = response.body()
+                                    println("Aluno logado com sucesso:")
+                                } else {
+                                    println("Erro ao criar aluno: ${response.code()}")
+                                }
+                            }
+
+                            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                                println("Erro: ${t.message}")
+                            }
+                        })
+
+                        if( UsuarioEmail.value.isEmpty() || UsuarioSenha.value.isEmpty() ==
+                            UsuarioEmailValida.value.isEmpty() || UsuarioSenhaValida.value.isEmpty()){
+                            isErrorState = true
+                            messageSuccessState = "Sucesso."
+                        } else {messageErrorState = "Algo deu errado, verifique seu email e senha novamente!." }
+                    },
+
+
                     modifier = Modifier
                         .offset(x = 160.dp, y = 60.dp)
                         .width(150.dp)
@@ -231,9 +294,9 @@ fun TelaLogin(controleDeNavegacao: NavHostController?= null) {
                 )
 
             }
-            }
         }
     }
+}
 
 
 
